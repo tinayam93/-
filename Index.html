@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>韓國春季吃喝玩樂、美妝髮膜之旅 2027</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Inter & Noto Sans TC -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sakura: {
+              50: '#fff5f7',
+              100: '#ffe6ec',
+              200: '#fecddb',
+              400: '#f980a3',
+              500: '#f4497a',
+              600: '#e12258',
+            },
+            kbeauty: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              500: '#14b8a6',
+              700: '#0f766e',
+            }
+          },
+          fontFamily: {
+            sans: ['"Noto Sans TC"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Noto Sans TC', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #fda4af; border-radius: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #f43f5e; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
+
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-pink-400 via-rose-400 to-amber-300 text-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="bg-white/20 p-2.5 rounded-2xl backdrop-blur-md">
+          <i class="fa-solid font-bold fa-plane-departure text-2xl text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 id="main-header-title" class="text-xl md:text-2xl font-bold tracking-wide">🌸 韓國春季美妝髮膜奢享之旅</h1>
+            <button onclick="openEditMainTitleModal()" class="text-xs bg-white/20 hover:bg-white/30 text-white p-1.5 rounded-lg transition" title="修改大標題">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+          </div>
+          <p id="main-header-subtitle" class="text-xs md:text-sm text-pink-100 font-light">3月尾復活節快閃行程規劃 · 吃喝玩樂買全攻略</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full text-xs md:text-sm">
+        <i class="fa-regular fa-calendar-days text-pink-200"></i>
+        <span id="header-date-range">2027/03/25 - 03/29 (5 Days)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-6xl mx-auto px-4 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Left Column: Navigation Tabs & Daily Itinerary (2 Cols on lg) -->
+    <div class="lg:col-span-2 space-y-6">
+
+      <!-- Flight & Hotel Info Section -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Flight Info Box -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+          <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+            <h3 class="font-bold text-slate-800 text-xs sm:text-sm flex items-center gap-2">
+              <i class="fa-solid fa-plane-up text-rose-500"></i> ✈️ 機票航班資訊
+            </h3>
+            <button onclick="openEditFlightModal()" class="text-xs text-rose-500 hover:text-rose-600 font-medium flex items-center gap-1">
+              <i class="fa-solid fa-pen-to-square"></i> 編輯 / 圖片
+            </button>
+          </div>
+          <div id="flight-info-display" class="space-y-2 text-xs text-slate-600">
+            <!-- Flight content populated by JS -->
+          </div>
+        </div>
+
+        <!-- Hotel Info Box -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+          <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+            <h3 class="font-bold text-slate-800 text-xs sm:text-sm flex items-center gap-2">
+              <i class="fa-solid fa-hotel text-rose-500"></i> 🏨 酒店住宿資訊
+            </h3>
+            <button onclick="openEditHotelModal()" class="text-xs text-rose-500 hover:text-rose-600 font-medium flex items-center gap-1">
+              <i class="fa-solid fa-pen-to-square"></i> 編輯 / 圖片
+            </button>
+          </div>
+          <div id="hotel-info-display" class="space-y-2 text-xs text-slate-600">
+            <!-- Hotel content populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation / Controls -->
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-wrap justify-between items-center gap-3">
+        <div class="flex items-center space-x-1 sm:space-x-2 overflow-x-auto pb-1 sm:pb-0 custom-scrollbar flex-1" id="day-tabs">
+          <!-- Day Tabs generated by JS -->
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <button onclick="addNewDay()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-medium transition flex items-center gap-1" title="新增一整天行程">
+            <i class="fa-solid fa-plus text-rose-500"></i>
+            <span>新增天數</span>
+          </button>
+          <button onclick="openAddModal()" class="flex-1 sm:flex-initial px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs sm:text-sm font-medium shadow-md shadow-rose-200 transition flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-plus"></i>
+            <span>新增行程事項</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Selected Day Details Container -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6 space-y-4">
+        <div class="flex justify-between items-start border-b border-slate-100 pb-4">
+          <div>
+            <span id="current-day-tag" class="px-3 py-1 bg-rose-100 text-rose-600 text-xs font-bold rounded-full">DAY 1</span>
+            <h2 id="current-day-title" class="text-lg md:text-xl font-bold mt-1 text-slate-800">弘大潮牌商圈 ➔ 韓式燒肉與夜間美妝巡禮</h2>
+            <p id="current-day-date" class="text-xs text-slate-400 mt-0.5"><i class="fa-regular fa-clock me-1"></i>3 月 25 日（三）</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="openEditDayModal()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium px-2.5 py-1.5 rounded-lg transition flex items-center gap-1">
+              <i class="fa-solid fa-pen-to-square"></i> 編輯當天資訊
+            </button>
+            <button onclick="deleteCurrentDay()" class="text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 font-medium px-2 py-1.5 rounded-lg transition" title="刪除整天">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+            <button onclick="resetDefaultData()" class="text-xs text-slate-400 hover:text-rose-500 transition flex items-center gap-1 p-1" title="重設預設行程">
+              <i class="fa-solid fa-rotate-left"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Timeline Items Container -->
+        <div id="itinerary-list" class="space-y-2 relative before:absolute before:inset-0 before:left-3.5 before:w-0.5 before:bg-rose-100 before:z-0">
+          <!-- Items populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Transport Guide Section -->
+      <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-5 border border-indigo-100 shadow-sm space-y-3">
+        <div class="flex items-center space-x-2 text-indigo-800 font-bold">
+          <i class="fa-solid fa-bus-simple text-indigo-500"></i>
+          <h3>首爾實用交通搭乘指南</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-600">
+          <div class="bg-white/80 p-3 rounded-xl border border-indigo-100">
+            <p class="font-bold text-indigo-900 mb-1"><i class="fa-solid fa-train-subway text-indigo-500 me-1"></i>仁川機場 ↔ 市區</p>
+            <p>• <strong>AREX 直達列車</strong>：仁川機場 ➔ 首爾站（約 43 分鐘，需劃位）。</p>
+            <p>• <strong>機場巴士 6002 / 6015</strong>：直達弘大 / 明洞，免搬大行李。</p>
+          </div>
+          <div class="bg-white/80 p-3 rounded-xl border border-indigo-100">
+            <p class="font-bold text-indigo-900 mb-1"><i class="fa-solid fa-map-location-dot text-indigo-500 me-1"></i>導航 App 推薦</p>
+            <p>• 韓國不適用 Google Maps 步導航！請務必下載 <strong>Naver Map</strong> 或 <strong>KakaoMap</strong>。</p>
+            <p>• 必備 <strong>T-Money 交通卡</strong> 或 <strong>WOWPASS</strong>，地下鐵與巴士通用。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Tips & Travel Info Section -->
+      <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-amber-100/80 shadow-sm space-y-3">
+        <div class="flex items-center space-x-2 text-amber-700 font-bold">
+          <i class="fa-solid fa-lightbulb text-amber-500"></i>
+          <h3>3月首爾春季遊行必看 Tips</h3>
+        </div>
+        <ul class="text-xs md:text-sm text-slate-600 space-y-2 list-disc list-inside">
+          <li><strong>天氣與衣著</strong>：初春微涼（約 5°C - 15°C），建議洋蔥式穿法，內搭薄長袖外加風衣/薄羽絨。</li>
+          <li><strong>退稅提醒</strong>：韓國大部分美妝店（Olive Young）均支援現場即時退稅，記得隨身攜帶護照。</li>
+          <li><strong>沙龍預約</strong>：個人色彩測試（Personal Color）與 Head Spa 頭皮護理熱門，建議提前 1-2 個月在 Klook 或 IG DM 預約。</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Beauty & Haircare Shopping List + Currency Converter (1 Col) -->
+    <div class="space-y-6">
+
+      <!-- Currency Calculator -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 class="font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-calculator text-rose-400"></i> 韓元 (KRW) 匯率換算
+          </h3>
+          <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md">1 HKD ≈ 172 KRW</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">韓元 (₩ KRW)</label>
+            <input type="number" id="krw-input" oninput="convertCurrency('krw')" placeholder="如: 50000" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-300">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">港幣 ($ HKD)</label>
+            <input type="number" id="hkd-input" oninput="convertCurrency('hkd')" placeholder="如: 290" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-300">
+          </div>
+        </div>
+      </div>
+
+      <!-- Beauty & Haircare Shopping Wishlist -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+        <div class="flex justify-between items-center">
+          <div>
+            <div class="flex items-center gap-1.5">
+              <h3 id="wishlist-title-text" class="font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-sparkles text-rose-500"></i> 彩妝 & 髮膜購物清單
+              </h3>
+              <button onclick="openEditWishlistTitleModal()" class="text-xs text-slate-400 hover:text-slate-600 p-1" title="修改清單名稱">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+            </div>
+            <p id="wishlist-subtitle-text" class="text-xs text-slate-400">韓系爆款美妝·星級頭皮護理</p>
+          </div>
+          <span id="wishlist-count" class="text-xs bg-rose-100 text-rose-600 font-bold px-2.5 py-1 rounded-full">0/0</span>
+        </div>
+
+        <!-- Add Item Form -->
+        <div class="flex gap-2">
+          <input type="text" id="new-item-name" placeholder="輸入品項名稱（如：UNOVE髮膜）" class="flex-1 text-xs px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-300">
+          <select id="new-item-cat" class="text-xs px-2 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-300">
+            <option value="髮膜護髮">髮膜</option>
+            <option value="春季彩妝">彩妝</option>
+            <option value="頭皮保養">頭皮</option>
+            <option value="其他樂購">其他</option>
+          </select>
+          <button onclick="addWishlistItem()" class="px-3 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-medium rounded-xl shadow transition">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </div>
+
+        <!-- Shopping List Items -->
+        <div id="wishlist-container" class="space-y-2 max-h-80 overflow-y-auto custom-scrollbar pr-1">
+          <!-- Items populated by JS -->
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Image View Modal -->
+  <div id="image-view-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4" onclick="closeImageViewModal()">
+    <div class="relative max-w-3xl w-full max-h-[90vh] flex flex-col items-center justify-center">
+      <img id="image-view-target" src="" class="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl">
+      <button onclick="closeImageViewModal()" class="absolute top-2 right-2 bg-slate-800/80 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-rose-500 transition">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Header Main Title Modal -->
+  <div id="main-title-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
+      <h3 class="font-bold text-lg text-slate-800">修改網頁標題與日期區間</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">主標題</label>
+          <input type="text" id="edit-main-title-input" class="w-full text-sm px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-400">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">副標題</label>
+          <input type="text" id="edit-main-subtitle-input" class="w-full text-sm px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-400">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">日期區間顯示</label>
+          <input type="text" id="edit-main-daterange-input" class="w-full text-sm px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-400">
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeMainTitleModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-medium">取消</button>
+        <button type="button" onclick="saveMainTitle()" class="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-medium">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flight Modal -->
+  <div id="flight-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <h3 class="font-bold text-lg text-slate-800">編輯機票與航班資訊</h3>
+      <div class="space-y-3 text-xs">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-slate-500 block mb-1">去程航班號</label>
+            <input type="text" id="edit-flight-out-num" class="w-full p-2 border rounded-xl">
+          </div>
+          <div>
+            <label class="text-slate-500 block mb-1">去程時間</label>
+            <input type="text" id="edit-flight-out-time" class="w-full p-2 border rounded-xl">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-slate-500 block mb-1">回程航班號</label>
+            <input type="text" id="edit-flight-in-num" class="w-full p-2 border rounded-xl">
+          </div>
+          <div>
+            <label class="text-slate-500 block mb-1">回程時間</label>
+            <input type="text" id="edit-flight-in-time" class="w-full p-2 border rounded-xl">
+          </div>
+        </div>
+        <div>
+          <label class="text-slate-500 block mb-1">訂位代號 / 備註</label>
+          <input type="text" id="edit-flight-pnr" class="w-full p-2 border rounded-xl">
+        </div>
+        <!-- Flight Images -->
+        <div class="space-y-2 pt-2 border-t">
+          <label class="text-slate-700 font-bold block">航班照片 / 電子機票截圖</label>
+          <div class="flex gap-2">
+            <input type="text" id="flight-img-url" placeholder="貼上圖片網址" class="flex-1 p-2 border rounded-xl">
+            <button type="button" onclick="addFlightImageByUrl()" class="px-3 py-2 bg-slate-800 text-white rounded-xl text-xs">新增</button>
+          </div>
+          <div>
+            <label class="inline-block px-3 py-2 bg-rose-100 hover:bg-rose-200 text-rose-600 rounded-xl text-xs font-bold cursor-pointer transition">
+              <i class="fa-solid fa-cloud-arrow-up me-1"></i>從裝置選擇/上傳圖片檔案
+              <input type="file" accept="image/*" multiple class="hidden" onchange="handleFlightImageUpload(event)">
+            </label>
+          </div>
+          <div id="flight-modal-img-preview" class="flex flex-wrap gap-2 pt-1"></div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeFlightModal()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs">取消</button>
+        <button type="button" onclick="saveFlightInfo()" class="px-4 py-2 bg-rose-500 text-white rounded-xl text-xs">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hotel Modal -->
+  <div id="hotel-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <h3 class="font-bold text-lg text-slate-800">編輯酒店住宿資訊</h3>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="text-slate-500 block mb-1">酒店名稱</label>
+          <input type="text" id="edit-hotel-name" class="w-full p-2 border rounded-xl">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-slate-500 block mb-1">入住 / 退房日期</label>
+            <input type="text" id="edit-hotel-dates" class="w-full p-2 border rounded-xl">
+          </div>
+          <div>
+            <label class="text-slate-500 block mb-1">訂房確認號</label>
+            <input type="text" id="edit-hotel-pnr" class="w-full p-2 border rounded-xl">
+          </div>
+        </div>
+        <div>
+          <label class="text-slate-500 block mb-1">酒店地址 / 交通方式</label>
+          <input type="text" id="edit-hotel-address" class="w-full p-2 border rounded-xl">
+        </div>
+        <div>
+          <label class="text-slate-500 block mb-1">📌 備註 / 入住提醒 (如: 包含早餐、下午2點可寄放行李)</label>
+          <input type="text" id="edit-hotel-note" placeholder="如：已付清、下午可寄行李" class="w-full p-2 border rounded-xl">
+        </div>
+        <div>
+          <label class="text-slate-500 block mb-1">Google Map 連結</label>
+          <input type="text" id="edit-hotel-map" class="w-full p-2 border rounded-xl">
+        </div>
+        <!-- Hotel Images -->
+        <div class="space-y-2 pt-2 border-t">
+          <label class="text-slate-700 font-bold block">飯店照片 / 預訂憑證照片</label>
+          <div class="flex gap-2">
+            <input type="text" id="hotel-img-url" placeholder="貼上圖片網址" class="flex-1 p-2 border rounded-xl">
+            <button type="button" onclick="addHotelImageByUrl()" class="px-3 py-2 bg-slate-800 text-white rounded-xl text-xs">新增</button>
+          </div>
+          <div>
+            <label class="inline-block px-3 py-2 bg-rose-100 hover:bg-rose-200 text-rose-600 rounded-xl text-xs font-bold cursor-pointer transition">
+              <i class="fa-solid fa-cloud-arrow-up me-1"></i>從裝置選擇/上傳圖片檔案
+              <input type="file" accept="image/*" multiple class="hidden" onchange="handleHotelImageUpload(event)">
+            </label>
+          </div>
+          <div id="hotel-modal-img-preview" class="flex flex-wrap gap-2 pt-1"></div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeHotelModal()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs">取消</button>
+        <button type="button" onclick="saveHotelInfo()" class="px-4 py-2 bg-rose-500 text-white rounded-xl text-xs">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Day Edit Modal -->
+  <div id="day-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
+      <h3 class="font-bold text-lg text-slate-800">編輯當天行程標題與日期</h3>
+      <form onsubmit="handleDayFormSubmit(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">天數標籤 (如 DAY 1)</label>
+          <input type="text" id="edit-day-tag" required class="w-full text-sm px-3 py-2 border rounded-xl">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">當日主題標題</label>
+          <input type="text" id="edit-day-title" required class="w-full text-sm px-3 py-2 border rounded-xl">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">日期 (如 3 月 25 日)</label>
+          <input type="text" id="edit-day-date" required class="w-full text-sm px-3 py-2 border rounded-xl">
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeDayModal()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs">取消</button>
+          <button type="submit" class="px-4 py-2 bg-rose-500 text-white rounded-xl text-xs">儲存變更</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Event Edit / Add Modal -->
+  <div id="event-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <h3 id="event-modal-title" class="font-bold text-lg text-slate-800">新增行程事項</h3>
+      <form onsubmit="handleEventFormSubmit(event)" class="space-y-3">
+        <input type="hidden" id="event-insert-index" value="-1">
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">時間</label>
+            <input type="text" id="event-time" placeholder="如 14:00" required class="w-full text-sm px-3 py-2 border rounded-xl">
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs text-slate-500 mb-1">景點 / 店家地點</label>
+            <input type="text" id="event-location" placeholder="如 聖水洞 Amore" required class="w-full text-sm px-3 py-2 border rounded-xl">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">類別標籤</label>
+            <select id="event-category" class="w-full text-sm px-3 py-2 border rounded-xl">
+              <option value="美妝爆買">🛍️ 美妝爆買</option>
+              <option value="潮牌購物">👗 潮牌購物</option>
+              <option value="美食韓牛">🥩 美食韓牛</option>
+              <option value="美髮護理">💇 美髮護理</option>
+              <option value="風格 Cafe">☕ 風格 Cafe</option>
+              <option value="景點體驗">✨ 景點體驗</option>
+              <option value="交通移動">✈️ 交通移動</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Google Map 連結 (選填)</label>
+            <input type="text" id="event-map" placeholder="https://maps.app..." class="w-full text-sm px-3 py-2 border rounded-xl">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">詳細說明 & 活動內容</label>
+          <textarea id="event-desc" rows="2" placeholder="備註詳細規劃..." class="w-full text-sm px-3 py-2 border rounded-xl"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">🛍️ 必買 / 必選清單 (選填)</label>
+          <input type="text" id="event-mustbuy" placeholder="如：UNOVE髮膜、Moremo水髮膜" class="w-full text-sm px-3 py-2 border rounded-xl">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">🚆 交通方式 / 出口路線 (選填)</label>
+          <input type="text" id="event-transport" placeholder="如：地鐵2號線聖水洞站3號出口步行5分鐘" class="w-full text-sm px-3 py-2 border rounded-xl">
+        </div>
+        <!-- Event Images Upload -->
+        <div class="space-y-2 pt-2 border-t">
+          <label class="text-xs font-bold text-slate-700 block">相片 / 參考圖片</label>
+          <div class="flex gap-2">
+            <input type="text" id="event-new-image-url" placeholder="貼上圖片 URL 網址" class="flex-1 text-xs px-3 py-2 border rounded-xl">
+            <button type="button" onclick="addImageToEventModal()" class="px-3 py-2 bg-slate-800 text-white rounded-xl text-xs">新增網址</button>
+          </div>
+          <div>
+            <label class="inline-block px-3 py-2 bg-rose-100 hover:bg-rose-200 text-rose-600 rounded-xl text-xs font-bold cursor-pointer transition">
+              <i class="fa-solid fa-cloud-arrow-up me-1"></i>從裝置選擇/上傳圖片檔案
+              <input type="file" accept="image/*" multiple class="hidden" onchange="handleEventImageUpload(event)">
+            </label>
+          </div>
+          <div id="event-modal-img-preview" class="flex flex-wrap gap-2 pt-1"></div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs">取消</button>
+          <button type="submit" class="px-4 py-2 bg-rose-500 text-white rounded-xl text-xs">儲存行程</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Wishlist Edit Modal -->
+  <div id="wishlist-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <h3 class="font-bold text-base text-slate-800">編輯彩妝/髮膜購物品項</h3>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="text-slate-500 block mb-1">品項名稱</label>
+          <input type="text" id="edit-wish-name" class="w-full p-2 border rounded-xl">
+        </div>
+        <div>
+          <label class="text-slate-500 block mb-1">類別</label>
+          <select id="edit-wish-cat" class="w-full p-2 border rounded-xl">
+            <option value="髮膜護髮">髮膜護髮</option>
+            <option value="春季彩妝">春季彩妝</option>
+            <option value="頭皮保養">頭皮保養</option>
+            <option value="其他樂購">其他樂購</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-slate-500 block mb-1">備註 / 預算</label>
+          <input type="text" id="edit-wish-note" class="w-full p-2 border rounded-xl">
+        </div>
+        <!-- Wishlist Item Images -->
+        <div class="space-y-2 pt-2 border-t">
+          <label class="text-xs font-bold text-slate-700 block">產品 / 色號參考圖片</label>
+          <div class="flex gap-2">
+            <input type="text" id="wish-img-url" placeholder="貼上圖片網址" class="flex-1 text-xs p-2 border rounded-xl">
+            <button type="button" onclick="addWishImageByUrl()" class="px-3 py-2 bg-slate-800 text-white rounded-xl text-xs">新增</button>
+          </div>
+          <div>
+            <label class="inline-block px-3 py-2 bg-rose-100 hover:bg-rose-200 text-rose-600 rounded-xl text-xs font-bold cursor-pointer transition">
+              <i class="fa-solid fa-cloud-arrow-up me-1"></i>從裝置選擇/上傳圖片檔案
+              <input type="file" accept="image/*" multiple class="hidden" onchange="handleWishImageUpload(event)">
+            </label>
+          </div>
+          <div id="wish-modal-img-preview" class="flex flex-wrap gap-2 pt-1"></div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-1">
+        <button type="button" onclick="closeWishlistModal()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs">取消</button>
+        <button type="button" onclick="saveWishlistItem()" class="px-4 py-2 bg-rose-500 text-white rounded-xl text-xs">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wishlist Title Edit Modal -->
+  <div id="wishlist-title-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-xl">
+      <h3 class="font-bold text-base text-slate-800">修改購物清單標題</h3>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="text-slate-500 block mb-1">清單標題</label>
+          <input type="text" id="edit-wishlist-title-input" class="w-full p-2 border rounded-xl">
+        </div>
+        <div>
+          <label class="text-slate-500 block mb-1">副標題 / 描述</label>
+          <input type="text" id="edit-wishlist-subtitle-input" class="w-full p-2 border rounded-xl">
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-1">
+        <button type="button" onclick="closeWishlistTitleModal()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs">取消</button>
+        <button type="button" onclick="saveWishlistTitle()" class="px-4 py-2 bg-rose-500 text-white rounded-xl text-xs">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // App Data State
+    let appState = {
+      mainTitle: "🌸 韓國春季美妝髮膜奢享之旅",
+      mainSubtitle: "3月尾復活節快閃行程規劃 · 吃喝玩樂買全攻略",
+      dateRange: "2027/03/25 - 03/29 (5 Days)",
+      wishlistTitle: "彩妝 & 髮膜購物清單",
+      wishlistSubtitle: "韓系爆款美妝·星級頭皮護理",
+      flight: {
+        outboundNum: "CX420",
+        outboundTime: "03/25 14:20 HKG ➔ 19:05 ICN",
+        inboundNum: "CX421",
+        inboundTime: "03/29 20:15 ICN ➔ 23:10 HKG",
+        pnr: "PNR: K8X9P2",
+        images: ["https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&auto=format&fit=crop&q=60"]
+      },
+      hotel: {
+        name: "L7 Hongdae by LOTTE (首爾弘大 L7 酒店)",
+        dates: "03/25 - 03/29 (4 晚)",
+        pnr: "Agoda #192837465",
+        address: "首爾特別市麻浦區楊花路141 (地鐵弘大入口站1號出口)",
+        note: "下午 3:00 Check-in，可先至櫃檯寄放行李；含每日雙人早餐",
+        mapUrl: "https://maps.google.com/?q=L7+Hongdae",
+        images: ["https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&auto=format&fit=crop&q=60"]
+      },
+      activeDayIndex: 0,
+      days: [
+        {
+          tag: "DAY 1",
+          title: "弘大潮牌商圈 ➔ 韓式燒肉與夜間美妝巡禮",
+          date: "3 月 25 日（三）",
+          events: [
+            {
+              id: "e1",
+              time: "19:30",
+              location: "弘大商圈 (Hongdae Street)",
+              category: "潮牌購物",
+              desc: "飯店 Check-in 後逛街：Musinsa Standard, Gentle Monster, Tamburins 香氛, Covernat 潮牌。",
+              mustBuy: "Tamburins 護手霜、Gentle Monster 太陽眼鏡",
+              transport: "機場快線 AREX 直達弘大入口站 1 號出口",
+              mapUrl: "https://maps.google.com/?q=Hongdae+Shopping+Street",
+              images: ["https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop&q=60"]
+            },
+            {
+              id: "e2",
+              time: "21:00",
+              location: "熟成豬肉燒肉 (熟成到 / 肉典食堂)",
+              category: "美食韓牛",
+              desc: "品嚐專利熟成五花肉與豬頸肉，搭配韓式冷麵與燒酒。",
+              mustBuy: "專利熟成五花肉、韓式冷麵",
+              transport: "弘大 9 號出口步行 4 分鐘",
+              mapUrl: "https://maps.google.com/?q=Hongdae+Korean+BBQ",
+              images: ["https://images.unsplash.com/photo-1544025162-d76694265947?w=500&auto=format&fit=crop&q=60"]
+            },
+            {
+              id: "e3",
+              time: "22:30",
+              location: "Olive Young 弘大總店",
+              category: "美妝爆買",
+              desc: "深夜第一波補貨！鎖定髮膜、頭皮保養與爆款彩妝。",
+              mustBuy: "UNOVE 髮膜、Moremo 水髮膜、fwee 唇頰膏",
+              transport: "弘大入口站 8 號出口即達",
+              mapUrl: "https://maps.google.com/?q=Olive+Young+Hongdae",
+              images: ["https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500&auto=format&fit=crop&q=60"]
+            }
+          ]
+        },
+        {
+          tag: "DAY 2",
+          title: "聖水洞時尚美妝 ➔ 韓式沙龍星級髮膜護理",
+          date: "3 月 26 日（四）",
+          events: [
+            {
+              id: "e4",
+              time: "11:00",
+              location: "聖水洞美妝旗艦店 (Amore Seongsu & fwee)",
+              category: "美妝爆買",
+              desc: "體驗 Amore 客製化專屬底妝/唇膏，fwee Agit 聖水店選購鑰匙圈布丁唇膏。",
+              mustBuy: "Amore 客製化粉底、fwee 布丁唇頰膏",
+              transport: "地鐵 2 號線聖水站 2 號出口",
+              mapUrl: "https://maps.google.com/?q=Amore+Seongsu",
+              images: ["https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500&auto=format&fit=crop&q=60"]
+            },
+            {
+              id: "e5",
+              time: "15:00",
+              location: "清潭洞 / 江南星級美髮沙龍 Head Spa",
+              category: "美髮護理",
+              desc: "體驗韓式深層頭皮清爽去角質 + 專業水光髮膜蒸氣護理，做完頭髮順滑發亮。",
+              mustBuy: "沙龍級頭皮養護精華、安瓶髮膜",
+              transport: "水仁·盆唐線狎鷗亭羅德奧站 5 號出口",
+              mapUrl: "https://maps.google.com/?q=Cheongdam+Hair+Spa",
+              images: ["https://images.unsplash.com/photo-1562322140-8baeececf3df?w=500&auto=format&fit=crop&q=60"]
+            }
+          ]
+        }
+      ],
+      wishlist: [
+        { id: "w1", name: "UNOVE Deep Damage Treatment EX 髮膜", category: "髮膜護髮", note: "蛋白質強效修護，染燙救星", checked: false },
+        { id: "w2", name: "Moremo Water Treatment Miracle 10 秒水髮膜", category: "髮膜護髮", note: "液態水狀快速滲透", checked: true },
+        { id: "w3", name: "Growus Sea Salt 頭皮磨砂膏", category: "頭皮保養", note: "海鹽涼感控油去角質", checked: false },
+        { id: "w4", name: "fwee Pudding Pot 布丁唇頰膏", category: "春季彩妝", note: "絲絨軟綿質地（熱門色號3號）", checked: false },
+        { id: "w5", name: "HERA Black Cushion 黑氣墊", category: "春季彩妝", note: "高級霧光持久底妝", checked: true }
+      ]
+    };
+
+    // Temporary storage for image files when editing
+    let currentModalImages = [];
+    let editingEventId = null;
+    let currentWishlistEditId = null;
+
+    // Load state from localStorage on init
+    function initAppState() {
+      const saved = localStorage.getItem("korea_travel_state_v3");
+      if (saved) {
+        try {
+          appState = JSON.parse(saved);
+        } catch(e) {
+          console.error("Parse state error", e);
+        }
+      }
+      renderAll();
+    }
+
+    function saveState() {
+      localStorage.setItem("korea_travel_state_v3", JSON.stringify(appState));
+    }
+
+    // Render Function
+    function renderAll() {
+      // Header Info
+      document.getElementById("main-header-title").innerText = appState.mainTitle || "🌸 韓國春季美妝髮膜奢享之旅";
+      document.getElementById("main-header-subtitle").innerText = appState.mainSubtitle || "3月尾復活節快閃行程規劃 · 吃喝玩樂買全攻略";
+      document.getElementById("header-date-range").innerText = appState.dateRange || "2027/03/25 - 03/29";
+
+      // Wishlist Title Info
+      const wTitle = appState.wishlistTitle || "彩妝 & 髮膜購物清單";
+      document.getElementById("wishlist-title-text").innerHTML = `<i class="fa-solid fa-sparkles text-rose-500 me-2"></i>${wTitle}`;
+      document.getElementById("wishlist-subtitle-text").innerText = appState.wishlistSubtitle || "韓系爆款美妝·星級頭皮護理";
+
+      renderFlightInfo();
+      renderHotelInfo();
+      renderDayTabs();
+      renderItinerary();
+      renderWishlist();
+    }
+
+    // Flight Info Render
+    function renderFlightInfo() {
+      const f = appState.flight || {};
+      const container = document.getElementById("flight-info-display");
+      let imgsHtml = "";
+      if (f.images && f.images.length > 0) {
+        imgsHtml = `
+          <div class="flex flex-wrap gap-1.5 pt-1">
+            ${f.images.map(img => `<img src="${img}" onclick="openImageViewModal('${img}')" class="w-12 h-12 object-cover rounded-lg border hover:opacity-80 cursor-pointer">`).join('')}
+          </div>
+        `;
+      }
+      container.innerHTML = `
+        <p>• <strong>去程</strong>：${f.outboundNum || '未設定'} (${f.outboundTime || ''})</p>
+        <p>• <strong>回程</strong>：${f.inboundNum || '未設定'} (${f.inboundTime || ''})</p>
+        <p>• <strong>備註</strong>：<span class="font-mono">${f.pnr || ''}</span></p>
+        ${imgsHtml}
+      `;
+    }
+
+    // Hotel Info Render
+    function renderHotelInfo() {
+      const h = appState.hotel || {};
+      const container = document.getElementById("hotel-info-display");
+      let imgsHtml = "";
+      if (h.images && h.images.length > 0) {
+        imgsHtml = `
+          <div class="flex flex-wrap gap-1.5 pt-1">
+            ${h.images.map(img => `<img src="${img}" onclick="openImageViewModal('${img}')" class="w-12 h-12 object-cover rounded-lg border hover:opacity-80 cursor-pointer">`).join('')}
+          </div>
+        `;
+      }
+      const mapBtn = h.mapUrl ? `<a href="${h.mapUrl}" target="_blank" class="ms-2 inline-flex items-center gap-0.5 text-rose-500 hover:underline"><i class="fa-solid fa-map-pin"></i>地圖</a>` : '';
+      container.innerHTML = `
+        <p>• <strong>飯店</strong>：${h.name || '未設定'} ${mapBtn}</p>
+        <p>• <strong>日期</strong>：${h.dates || ''}</p>
+        <p>• <strong>地址</strong>：${h.address || ''}</p>
+        ${h.note ? `<p class="bg-amber-50 text-amber-800 p-1.5 rounded-lg border border-amber-100 mt-1">📌 <strong>備註</strong>：${h.note}</p>` : ''}
+        ${imgsHtml}
+      `;
+    }
+
+    // Day Tabs Render
+    function renderDayTabs() {
+      const container = document.getElementById("day-tabs");
+      container.innerHTML = appState.days.map((day, idx) => {
+        const isActive = idx === appState.activeDayIndex;
+        return `
+          <button onclick="switchDay(${idx})" class="px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-1 ${
+            isActive 
+              ? 'bg-rose-500 text-white shadow-md shadow-rose-200' 
+              : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+          }">
+            <span>${day.tag}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    // Itinerary List Render
+    function renderItinerary() {
+      const day = appState.days[appState.activeDayIndex];
+      if (!day) return;
+
+      document.getElementById("current-day-tag").innerText = day.tag;
+      document.getElementById("current-day-title").innerText = day.title;
+      document.getElementById("current-day-date").innerHTML = `<i class="fa-regular fa-clock me-1"></i>${day.date}`;
+
+      const listContainer = document.getElementById("itinerary-list");
+      
+      let html = renderInsertBtn(0); // Insert before first event
+
+      if (!day.events || day.events.length === 0) {
+        html += `<div class="p-8 text-center text-xs text-slate-400 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">當天尚未規劃行程，點擊「新增行程事項」或「+ 在此處插入行程」！</div>`;
+      } else {
+        day.events.forEach((evt, idx) => {
+          let imgsHtml = "";
+          if (evt.images && evt.images.length > 0) {
+            imgsHtml = `
+              <div class="flex flex-wrap gap-2 pt-2">
+                ${evt.images.map(img => `
+                  <img src="${img}" onclick="openImageViewModal('${img}')" class="w-16 h-16 object-cover rounded-xl border border-slate-200 shadow-sm hover:scale-105 transition cursor-pointer">
+                `).join('')}
+              </div>
+            `;
+          }
+
+          const mapLink = evt.mapUrl ? evt.mapUrl : `https://maps.google.com/?q=${encodeURIComponent(evt.location + ' Seoul')}`;
+
+          html += `
+            <div class="relative pl-7 pb-4 group">
+              <!-- Timeline Dot -->
+              <div class="absolute left-1.5 top-1.5 w-4 h-4 rounded-full bg-rose-400 border-2 border-white shadow-sm z-10"></div>
+              
+              <div class="bg-slate-50 hover:bg-white hover:shadow-md border border-slate-100 transition rounded-2xl p-4 space-y-2">
+                <div class="flex justify-between items-start gap-2">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-mono font-bold text-xs bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md">${evt.time}</span>
+                    <h4 class="font-bold text-sm text-slate-800">${evt.location}</h4>
+                    <span class="text-[10px] bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full font-medium">${evt.category || '景點'}</span>
+                  </div>
+                  <div class="flex items-center space-x-1">
+                    <a href="${mapLink}" target="_blank" class="text-xs bg-pink-100 hover:bg-pink-200 text-pink-600 px-2 py-1 rounded-lg transition font-medium flex items-center gap-1">
+                      <i class="fa-solid fa-map-location-dot"></i> Google Map
+                    </a>
+                    <button onclick="editEvent('${evt.id}')" class="text-xs text-slate-400 hover:text-slate-600 p-1" title="編輯">
+                      <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button onclick="deleteEvent('${evt.id}')" class="text-xs text-slate-400 hover:text-rose-500 p-1" title="刪除">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <p class="text-xs text-slate-600 leading-relaxed">${evt.desc}</p>
+
+                ${evt.mustBuy ? `
+                  <div class="text-xs bg-pink-50/70 border border-pink-100 p-2 rounded-xl text-pink-700 flex items-start gap-1.5">
+                    <i class="fa-solid fa-bag-shopping text-pink-400 mt-0.5"></i>
+                    <div><strong>🛍️ 必買/必選：</strong>${evt.mustBuy}</div>
+                  </div>
+                ` : ''}
+
+                ${evt.transport ? `
+                  <div class="text-xs bg-indigo-50/70 border border-indigo-100 p-2 rounded-xl text-indigo-700 flex items-start gap-1.5">
+                    <i class="fa-solid fa-train-subway text-indigo-400 mt-0.5"></i>
+                    <div><strong>🚆 交通：</strong>${evt.transport}</div>
+                  </div>
+                ` : ''}
+
+                ${imgsHtml}
+              </div>
+            </div>
+          `;
+
+          html += renderInsertBtn(idx + 1); // Insert button after each item
+        });
+      }
+
+      listContainer.innerHTML = html;
+    }
+
+    function renderInsertBtn(index) {
+      return `
+        <div class="relative pl-7 py-1 my-1 group flex items-center justify-center">
+          <button onclick="openInsertModal(${index})" class="text-[11px] bg-rose-50 hover:bg-rose-500 text-rose-500 hover:text-white border border-rose-200 px-3 py-1 rounded-full shadow-sm transition flex items-center gap-1 z-10">
+            <i class="fa-solid fa-plus"></i> 在此處插入行程
+          </button>
+          <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-dashed border-rose-200"></div></div>
+        </div>
+      `;
+    }
+
+    // Wishlist Render
+    function renderWishlist() {
+      const container = document.getElementById("wishlist-container");
+      const list = appState.wishlist || [];
+      const checkedCount = list.filter(i => i.checked).length;
+      document.getElementById("wishlist-count").innerText = `${checkedCount}/${list.length}`;
+
+      container.innerHTML = list.map(item => {
+        let imgsHtml = "";
+        if (item.images && item.images.length > 0) {
+          imgsHtml = `
+            <div class="flex flex-wrap gap-1.5 pt-1.5">
+              ${item.images.map(img => `<img src="${img}" onclick="openImageViewModal('${img}')" class="w-10 h-10 object-cover rounded-lg border hover:opacity-80 cursor-pointer">`).join('')}
+            </div>
+          `;
+        }
+
+        return `
+          <div class="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-xl transition space-y-1 ${item.checked ? 'opacity-60' : ''}">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center space-x-2.5 flex-1 min-w-0">
+                <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleWishlist('${item.id}')" class="w-4 h-4 text-rose-500 rounded focus:ring-rose-400">
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs font-medium text-slate-800 truncate ${item.checked ? 'line-through text-slate-400' : ''}">${item.name}</p>
+                  <p class="text-[10px] text-slate-400">${item.category} ${item.note ? '· ' + item.note : ''}</p>
+                </div>
+              </div>
+              <div class="flex items-center space-x-1">
+                <button onclick="openWishlistModal('${item.id}')" class="text-xs text-slate-400 hover:text-slate-600 p-1" title="修改品名/圖片">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button onclick="deleteWishlistItem('${item.id}')" class="text-xs text-slate-400 hover:text-rose-500 p-1">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+            ${imgsHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Actions
+    function switchDay(index) {
+      appState.activeDayIndex = index;
+      renderAll();
+    }
+
+    function addNewDay() {
+      const newIndex = appState.days.length + 1;
+      appState.days.push({
+        tag: `DAY ${newIndex}`,
+        title: "自訂首爾行程主題",
+        date: "3 月末",
+        events: []
+      });
+      appState.activeDayIndex = appState.days.length - 1;
+      saveState();
+      renderAll();
+    }
+
+    function deleteCurrentDay() {
+      if (appState.days.length <= 1) {
+        alert("至少需要保留 1 天行程！");
+        return;
+      }
+      if (confirm("確定要刪除這整天的行程嗎？")) {
+        appState.days.splice(appState.activeDayIndex, 1);
+        appState.activeDayIndex = Math.max(0, appState.activeDayIndex - 1);
+        saveState();
+        renderAll();
+      }
+    }
+
+    function resetDefaultData() {
+      if (confirm("確定重設為預設的韓國美妝行程規劃嗎？")) {
+        localStorage.removeItem("korea_travel_state_v3");
+        location.reload();
+      }
+    }
+
+    // Image View Modal
+    function openImageViewModal(url) {
+      document.getElementById("image-view-target").src = url;
+      document.getElementById("image-view-modal").classList.remove("hidden");
+    }
+    function closeImageViewModal() {
+      document.getElementById("image-view-modal").classList.add("hidden");
+    }
+
+    // Main Header Modal
+    function openEditMainTitleModal() {
+      document.getElementById("edit-main-title-input").value = appState.mainTitle || "";
+      document.getElementById("edit-main-subtitle-input").value = appState.mainSubtitle || "";
+      document.getElementById("edit-main-daterange-input").value = appState.dateRange || "";
+      document.getElementById("main-title-modal").classList.remove("hidden");
+    }
+    function closeMainTitleModal() {
+      document.getElementById("main-title-modal").classList.add("hidden");
+    }
+    function saveMainTitle() {
+      appState.mainTitle = document.getElementById("edit-main-title-input").value;
+      appState.mainSubtitle = document.getElementById("edit-main-subtitle-input").value;
+      appState.dateRange = document.getElementById("edit-main-daterange-input").value;
+      saveState();
+      renderAll();
+      closeMainTitleModal();
+    }
+
+    // Flight Modal
+    function openEditFlightModal() {
+      const f = appState.flight || {};
+      document.getElementById("edit-flight-out-num").value = f.outboundNum || "";
+      document.getElementById("edit-flight-out-time").value = f.outboundTime || "";
+      document.getElementById("edit-flight-in-num").value = f.inboundNum || "";
+      document.getElementById("edit-flight-in-time").value = f.inboundTime || "";
+      document.getElementById("edit-flight-pnr").value = f.pnr || "";
+      currentModalImages = [...(f.images || [])];
+      renderFlightModalImages();
+      document.getElementById("flight-modal").classList.remove("hidden");
+    }
+    function closeFlightModal() {
+      document.getElementById("flight-modal").classList.add("hidden");
+    }
+    function renderFlightModalImages() {
+      const container = document.getElementById("flight-modal-img-preview");
+      container.innerHTML = currentModalImages.map((img, i) => `
+        <div class="relative group">
+          <img src="${img}" class="w-14 h-14 object-cover rounded-lg border">
+          <button type="button" onclick="removeFlightImg(${i})" class="absolute -top-1 -right-1 bg-rose-500 text-white w-4 h-4 rounded-full text-[10px] flex items-center justify-center">×</button>
+        </div>
+      `).join('');
+    }
+    function removeFlightImg(i) {
+      currentModalImages.splice(i, 1);
+      renderFlightModalImages();
+    }
+    function addFlightImageByUrl() {
+      const input = document.getElementById("flight-img-url");
+      if (input.value.trim()) {
+        currentModalImages.push(input.value.trim());
+        input.value = "";
+        renderFlightModalImages();
+      }
+    }
+    function handleFlightImageUpload(e) {
+      const files = e.target.files;
+      if (!files) return;
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          currentModalImages.push(evt.target.result);
+          renderFlightModalImages();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    function saveFlightInfo() {
+      appState.flight = {
+        outboundNum: document.getElementById("edit-flight-out-num").value,
+        outboundTime: document.getElementById("edit-flight-out-time").value,
+        inboundNum: document.getElementById("edit-flight-in-num").value,
+        inboundTime: document.getElementById("edit-flight-in-time").value,
+        pnr: document.getElementById("edit-flight-pnr").value,
+        images: currentModalImages
+      };
+      saveState();
+      renderFlightInfo();
+      closeFlightModal();
+    }
+
+    // Hotel Modal
+    function openEditHotelModal() {
+      const h = appState.hotel || {};
+      document.getElementById("edit-hotel-name").value = h.name || "";
+      document.getElementById("edit-hotel-dates").value = h.dates || "";
+      document.getElementById("edit-hotel-pnr").value = h.pnr || "";
+      document.getElementById("edit-hotel-address").value = h.address || "";
+      document.getElementById("edit-hotel-note").value = h.note || "";
+      document.getElementById("edit-hotel-map").value = h.mapUrl || "";
+      currentModalImages = [...(h.images || [])];
+      renderHotelModalImages();
+      document.getElementById("hotel-modal").classList.remove("hidden");
+    }
+
+    function closeHotelModal() {
+      document.getElementById("hotel-modal").classList.add("hidden");
+    }
+
+    function renderHotelModalImages() {
+      const container = document.getElementById("hotel-modal-img-preview");
+      if (!container) return;
+      container.innerHTML = currentModalImages.map((img, i) => `
+        <div class="relative group">
+          <img src="${img}" class="w-14 h-14 object-cover rounded-lg border">
+          <button type="button" onclick="removeHotelImg(${i})" class="absolute -top-1 -right-1 bg-rose-500 text-white w-4 h-4 rounded-full text-[10px] flex items-center justify-center">×</button>
+        </div>
+      `).join('');
+    }
+
+    function removeHotelImg(i) {
+      currentModalImages.splice(i, 1);
+      renderHotelModalImages();
+    }
+
+    function addHotelImageByUrl() {
+      const input = document.getElementById("hotel-img-url");
+      if (input && input.value.trim()) {
+        currentModalImages.push(input.value.trim());
+        input.value = "";
+        renderHotelModalImages();
+      }
+    }
+
+    function handleHotelImageUpload(e) {
+      const files = e.target.files;
+      if (!files) return;
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          currentModalImages.push(evt.target.result);
+          renderHotelModalImages();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function saveHotelInfo() {
+      appState.hotel = {
+        name: document.getElementById("edit-hotel-name").value,
+        dates: document.getElementById("edit-hotel-dates").value,
+        pnr: document.getElementById("edit-hotel-pnr").value,
+        address: document.getElementById("edit-hotel-address").value,
+        note: document.getElementById("edit-hotel-note").value,
+        mapUrl: document.getElementById("edit-hotel-map").value,
+        images: currentModalImages
+      };
+      saveState();
+      renderHotelInfo();
+      closeHotelModal();
+    }
+
+    // Day Modal
+    function openEditDayModal() {
+      const day = appState.days[appState.activeDayIndex];
+      document.getElementById("edit-day-tag").value = day.tag;
+      document.getElementById("edit-day-title").value = day.title;
+      document.getElementById("edit-day-date").value = day.date;
+      document.getElementById("day-modal").classList.remove("hidden");
+    }
+    function closeDayModal() {
+      document.getElementById("day-modal").classList.add("hidden");
+    }
+    function handleDayFormSubmit(e) {
+      e.preventDefault();
+      const day = appState.days[appState.activeDayIndex];
+      day.tag = document.getElementById("edit-day-tag").value;
+      day.title = document.getElementById("edit-day-title").value;
+      day.date = document.getElementById("edit-day-date").value;
+      saveState();
+      renderAll();
+      closeDayModal();
+    }
+
+    // Event Modal
+    function openAddModal() {
+      editingEventId = null;
+      document.getElementById("event-insert-index").value = "-1";
+      document.getElementById("event-modal-title").innerText = "新增行程事項";
+      document.getElementById("event-time").value = "12:00";
+      document.getElementById("event-location").value = "";
+      document.getElementById("event-desc").value = "";
+      document.getElementById("event-mustbuy").value = "";
+      document.getElementById("event-transport").value = "";
+      document.getElementById("event-map").value = "";
+      currentModalImages = [];
+      renderEventModalImages();
+      document.getElementById("event-modal").classList.remove("hidden");
+    }
+
+    function openInsertModal(index) {
+      openAddModal();
+      document.getElementById("event-insert-index").value = index;
+      document.getElementById("event-modal-title").innerText = `在位置 #${index + 1} 插入行程`;
+    }
+
+    function editEvent(evtId) {
+      editingEventId = evtId;
+      const day = appState.days[appState.activeDayIndex];
+      const evt = day.events.find(e => e.id === evtId);
+      if (!evt) return;
+
+      document.getElementById("event-modal-title").innerText = "編輯行程事項";
+      document.getElementById("event-time").value = evt.time;
+      document.getElementById("event-location").value = evt.location;
+      document.getElementById("event-category").value = evt.category || "景點體驗";
+      document.getElementById("event-desc").value = evt.desc;
+      document.getElementById("event-mustbuy").value = evt.mustBuy || "";
+      document.getElementById("event-transport").value = evt.transport || "";
+      document.getElementById("event-map").value = evt.mapUrl || "";
+      currentModalImages = [...(evt.images || [])];
+      renderEventModalImages();
+      document.getElementById("event-modal").classList.remove("hidden");
+    }
+
+    function closeModal() {
+      document.getElementById("event-modal").classList.add("hidden");
+    }
+
+    function renderEventModalImages() {
+      const container = document.getElementById("event-modal-img-preview");
+      container.innerHTML = currentModalImages.map((img, i) => `
+        <div class="relative group">
+          <img src="${img}" class="w-14 h-14 object-cover rounded-lg border">
+          <button type="button" onclick="removeEventImg(${i})" class="absolute -top-1 -right-1 bg-rose-500 text-white w-4 h-4 rounded-full text-[10px] flex items-center justify-center">×</button>
+        </div>
+      `).join('');
+    }
+
+    function removeEventImg(i) {
+      currentModalImages.splice(i, 1);
+      renderEventModalImages();
+    }
+
+    function addImageToEventModal() {
+      const input = document.getElementById("event-new-image-url");
+      if (input.value.trim()) {
+        currentModalImages.push(input.value.trim());
+        input.value = "";
+        renderEventModalImages();
+      }
+    }
+
+    function handleEventImageUpload(e) {
+      const files = e.target.files;
+      if (!files) return;
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          currentModalImages.push(evt.target.result);
+          renderEventModalImages();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function handleEventFormSubmit(e) {
+      e.preventDefault();
+      const day = appState.days[appState.activeDayIndex];
+      const insertIdx = parseInt(document.getElementById("event-insert-index").value);
+
+      const evtData = {
+        id: editingEventId || 'e_' + Date.now(),
+        time: document.getElementById("event-time").value,
+        location: document.getElementById("event-location").value,
+        category: document.getElementById("event-category").value,
+        desc: document.getElementById("event-desc").value,
+        mustBuy: document.getElementById("event-mustbuy").value,
+        transport: document.getElementById("event-transport").value,
+        mapUrl: document.getElementById("event-map").value,
+        images: currentModalImages
+      };
+
+      if (editingEventId) {
+        const idx = day.events.findIndex(e => e.id === editingEventId);
+        if (idx !== -1) day.events[idx] = evtData;
+      } else if (insertIdx >= 0) {
+        day.events.splice(insertIdx, 0, evtData);
+      } else {
+        day.events.push(evtData);
+      }
+
+      saveState();
+      renderItinerary();
+      closeModal();
+    }
+
+    function deleteEvent(evtId) {
+      if (confirm("確定要刪除這項行程嗎？")) {
+        const day = appState.days[appState.activeDayIndex];
+        day.events = day.events.filter(e => e.id !== evtId);
+        saveState();
+        renderItinerary();
+      }
+    }
+
+    // Currency Converter
+    function convertCurrency(type) {
+      const rate = 172; // 1 HKD = 172 KRW
+      if (type === 'krw') {
+        const val = parseFloat(document.getElementById("krw-input").value) || 0;
+        document.getElementById("hkd-input").value = (val / rate).toFixed(1);
+      } else {
+        const val = parseFloat(document.getElementById("hkd-input").value) || 0;
+        document.getElementById("krw-input").value = Math.round(val * rate);
+      }
+    }
+
+    // Wishlist Functions
+    function addWishlistItem() {
+      const nameInput = document.getElementById("new-item-name");
+      const name = nameInput.value.trim();
+      if (!name) return;
+      const cat = document.getElementById("new-item-cat").value;
+
+      appState.wishlist.push({
+        id: 'w_' + Date.now(),
+        name,
+        category: cat,
+        note: '',
+        checked: false
+      });
+      nameInput.value = "";
+      saveState();
+      renderWishlist();
+    }
+
+    function toggleWishlist(id) {
+      const item = appState.wishlist.find(i => i.id === id);
+      if (item) {
+        item.checked = !item.checked;
+        saveState();
+        renderWishlist();
+      }
+    }
+
+    function deleteWishlistItem(id) {
+      appState.wishlist = appState.wishlist.filter(i => i.id !== id);
+      saveState();
+      renderWishlist();
+    }
+
+    function openWishlistModal(id) {
+      currentWishlistEditId = id;
+      const item = appState.wishlist.find(i => i.id === id);
+      if (!item) return;
+      document.getElementById("edit-wish-name").value = item.name;
+      document.getElementById("edit-wish-cat").value = item.category || "髮膜護髮";
+      document.getElementById("edit-wish-note").value = item.note || "";
+      currentModalImages = [...(item.images || [])];
+      renderWishModalImages();
+      document.getElementById("wishlist-modal").classList.remove("hidden");
+    }
+
+    function renderWishModalImages() {
+      const container = document.getElementById("wish-modal-img-preview");
+      container.innerHTML = currentModalImages.map((img, i) => `
+        <div class="relative group">
+          <img src="${img}" class="w-12 h-12 object-cover rounded-lg border">
+          <button type="button" onclick="removeWishImg(${i})" class="absolute -top-1 -right-1 bg-rose-500 text-white w-4 h-4 rounded-full text-[10px] flex items-center justify-center">×</button>
+        </div>
+      `).join('');
+    }
+
+    function removeWishImg(i) {
+      currentModalImages.splice(i, 1);
+      renderWishModalImages();
+    }
+
+    function addWishImageByUrl() {
+      const input = document.getElementById("wish-img-url");
+      if (input.value.trim()) {
+        currentModalImages.push(input.value.trim());
+        input.value = "";
+        renderWishModalImages();
+      }
+    }
+
+    function handleWishImageUpload(e) {
+      const files = e.target.files;
+      if (!files) return;
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          currentModalImages.push(evt.target.result);
+          renderWishModalImages();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function closeWishlistModal() {
+      document.getElementById("wishlist-modal").classList.add("hidden");
+    }
+
+    // Wishlist Title Modal
+    function openEditWishlistTitleModal() {
+      document.getElementById("edit-wishlist-title-input").value = appState.wishlistTitle || "彩妝 & 髮膜購物清單";
+      document.getElementById("edit-wishlist-subtitle-input").value = appState.wishlistSubtitle || "韓系爆款美妝·星級頭皮護理";
+      document.getElementById("wishlist-title-modal").classList.remove("hidden");
+    }
+
+    function closeWishlistTitleModal() {
+      document.getElementById("wishlist-title-modal").classList.add("hidden");
+    }
+
+    function saveWishlistTitle() {
+      appState.wishlistTitle = document.getElementById("edit-wishlist-title-input").value;
+      appState.wishlistSubtitle = document.getElementById("edit-wishlist-subtitle-input").value;
+      saveState();
+      renderAll();
+      closeWishlistTitleModal();
+    }
+
+    function saveWishlistItem() {
+      const item = appState.wishlist.find(i => i.id === currentWishlistEditId);
+      if (item) {
+        item.name = document.getElementById("edit-wish-name").value;
+        item.category = document.getElementById("edit-wish-cat").value;
+        item.note = document.getElementById("edit-wish-note").value;
+        item.images = currentModalImages;
+        saveState();
+        renderWishlist();
+      }
+      closeWishlistModal();
+    }
+
+    // Startup
+    window.onload = function() {
+      initAppState();
+    };
+  </script>
+</body>
+</html>
