@@ -10,75 +10,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Google Fonts: Inter & Noto Sans TC -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-  
-  <!-- Firebase SDK Modules -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    // Firebase Setup
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'korea-travel-app';
-    const firebaseConfig = typeof __firebase_config !== 'undefined' 
-      ? JSON.parse(__firebase_config) 
-      : {
-          apiKey: "demo-key",
-          authDomain: "demo.firebaseapp.com",
-          projectId: "demo-project",
-          storageBucket: "demo.appspot.com",
-          messagingSenderId: "123456789",
-          appId: "1:123456789:web:123456"
-        };
-
-    let db, auth, docRef;
-
-    try {
-      const app = initializeApp(firebaseConfig);
-      auth = getAuth(app);
-      db = getFirestore(app);
-      docRef = doc(db, 'artifacts', appId, 'public', 'data', 'travelPlan', 'sharedDoc');
-    } catch (e) {
-      console.warn("Cloud storage fallback initialized", e);
-    }
-
-    // Expose cloud sync functions to global scope
-    window.cloudSync = {
-      async initSync(onUpdateCallback) {
-        if (!auth || !db) return;
-        try {
-          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-            await signInWithCustomToken(auth, __initial_auth_token);
-          } else {
-            await signInAnonymously(auth);
-          }
-        } catch (err) {
-          console.error("Auth error:", err);
-        }
-
-        onAuthStateChanged(auth, (user) => {
-          if (user) {
-            onSnapshot(docRef, (snapshot) => {
-              if (snapshot.exists()) {
-                const cloudData = snapshot.data();
-                onUpdateCallback(cloudData);
-              }
-            }, (error) => {
-              console.error("Cloud snapshot listener error:", error);
-            });
-          }
-        });
-      },
-
-      async saveCloudState(data) {
-        if (!auth?.currentUser || !db) return;
-        try {
-          await setDoc(docRef, data, { merge: true });
-        } catch (err) {
-          console.error("Save to cloud failed:", err);
-        }
-      }
-    };
-  </script>
 
   <script>
     tailwind.config = {
@@ -137,12 +68,28 @@
       <div class="flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full text-xs md:text-sm">
         <i class="fa-regular fa-calendar-days text-pink-200"></i>
         <span id="header-date-range">2027/03/25 - 03/29 (5 Days)</span>
-        <span id="sync-status-badge" class="ms-2 px-2 py-0.5 bg-emerald-500/80 text-white text-[10px] rounded-full flex items-center gap-1">
-          <i class="fa-solid fa-cloud"></i> 雲端同步中
-        </span>
       </div>
     </div>
   </header>
+
+  <!-- Live Cloud Sync Control Bar -->
+  <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white py-3 px-4 shadow-inner">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div class="flex items-center space-x-2">
+        <div id="cloud-status-icon" class="w-3 h-3 rounded-full bg-amber-400 animate-pulse"></div>
+        <span id="cloud-status-text" class="font-medium text-slate-200">雲端狀態：單機模式（請輸入共同房間 ID 開啟多人同步）</span>
+      </div>
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <input type="text" id="room-id-input" placeholder="自訂房間ID (例如: seoul2027)" class="px-3 py-1.5 bg-slate-800 border border-slate-700 text-white rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-rose-400 w-48">
+        <button onclick="connectToCloudRoom()" class="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl shadow transition flex items-center gap-1">
+          <i class="fa-solid fa-plug"></i> 連接雲端房間
+        </button>
+        <button onclick="syncDataFromCloud(true)" class="px-2.5 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl transition" title="手動刷新雲端資料">
+          <i class="fa-solid fa-arrows-rotate"></i>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Main Container -->
   <main class="max-w-6xl mx-auto px-4 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -737,39 +684,109 @@
     let currentModalImages = [];
     let editingEventId = null;
     let currentWishlistEditId = null;
-    let isRemoteUpdate = false;
+    let currentRoomId = "";
+    let cloudPollTimer = null;
 
     // Load state from localStorage / cloud on init
     function initAppState() {
-      const saved = localStorage.getItem("korea_travel_state_v3");
-      if (saved) {
-        try {
-          appState = JSON.parse(saved);
-        } catch(e) {
-          console.error("Parse state error", e);
-        }
-      }
-      renderAll();
-
-      // Initialize Cloud Listening & Syncing
-      if (window.cloudSync) {
-        window.cloudSync.initSync((cloudData) => {
-          if (cloudData && cloudData.appState) {
-            isRemoteUpdate = true;
-            appState = cloudData.appState;
-            localStorage.setItem("korea_travel_state_v3", JSON.stringify(appState));
-            renderAll();
-            isRemoteUpdate = false;
+      const savedRoom = localStorage.getItem("korea_travel_room_id");
+      if (savedRoom) {
+        document.getElementById("room-id-input").value = savedRoom;
+        connectToCloudRoom(savedRoom);
+      } else {
+        const saved = localStorage.getItem("korea_travel_state_v3");
+        if (saved) {
+          try {
+            appState = JSON.parse(saved);
+          } catch(e) {
+            console.error("Parse state error", e);
           }
+        }
+        renderAll();
+      }
+    }
+
+    // Connect to Free Public Cloud Store (kvdb API)
+    async function connectToCloudRoom(forcedRoomId = null) {
+      const roomId = forcedRoomId || document.getElementById("room-id-input").value.trim();
+      if (!roomId) {
+        alert("請輸入房間 ID！");
+        return;
+      }
+
+      currentRoomId = roomId.toLowerCase().replace(/[^a-z0-9]/g, "");
+      localStorage.setItem("korea_travel_room_id", currentRoomId);
+      document.getElementById("room-id-input").value = currentRoomId;
+
+      const statusIcon = document.getElementById("cloud-status-icon");
+      const statusText = document.getElementById("cloud-status-text");
+      
+      statusIcon.className = "w-3 h-3 rounded-full bg-blue-400 animate-ping";
+      statusText.innerText = `正在連接雲端房間 [${currentRoomId}]...`;
+
+      const success = await syncDataFromCloud();
+
+      if (success) {
+        statusIcon.className = "w-3 h-3 rounded-full bg-emerald-400";
+        statusText.innerText = `雲端同步已開啟 🟢 房間 ID: [${currentRoomId}] (所有裝置實時共享)`;
+      } else {
+        // If not exist on cloud, push current local data to cloud
+        await saveStateToCloud();
+        statusIcon.className = "w-3 h-3 rounded-full bg-emerald-400";
+        statusText.innerText = `已在雲端新建房間 🟢 房間 ID: [${currentRoomId}] (可分享給其他人)`;
+      }
+
+      // Start Auto Polling (every 3 seconds)
+      if (cloudPollTimer) clearInterval(cloudPollTimer);
+      cloudPollTimer = setInterval(() => {
+        syncDataFromCloud(false);
+      }, 3000);
+    }
+
+    async function syncDataFromCloud(showNotice = false) {
+      if (!currentRoomId) return false;
+      try {
+        const res = await fetch(`https://api.keyvalue.xyz/korea_trip_${currentRoomId}/data`);
+        if (res.ok) {
+          const cloudDataStr = await res.text();
+          if (cloudDataStr && cloudDataStr !== "null") {
+            const parsed = JSON.parse(cloudDataStr);
+            if (JSON.stringify(appState) !== JSON.stringify(parsed)) {
+              appState = parsed;
+              localStorage.setItem("korea_travel_state_v3", JSON.stringify(appState));
+              renderAll();
+            }
+            if (showNotice) alert("已從雲端更新最新數據！");
+            return true;
+          }
+        }
+      } catch (e) {
+        console.warn("Cloud sync fetch error", e);
+      }
+      return false;
+    }
+
+    async function saveStateToCloud() {
+      localStorage.setItem("korea_travel_state_v3", JSON.stringify(appState));
+      if (!currentRoomId) return;
+
+      try {
+        const statusIcon = document.getElementById("cloud-status-icon");
+        if (statusIcon) statusIcon.className = "w-3 h-3 rounded-full bg-amber-400 animate-pulse";
+        
+        await fetch(`https://api.keyvalue.xyz/korea_trip_${currentRoomId}/data`, {
+          method: "POST",
+          body: JSON.stringify(appState)
         });
+
+        if (statusIcon) statusIcon.className = "w-3 h-3 rounded-full bg-emerald-400";
+      } catch (e) {
+        console.error("Cloud save failed", e);
       }
     }
 
     function saveState() {
-      localStorage.setItem("korea_travel_state_v3", JSON.stringify(appState));
-      if (!isRemoteUpdate && window.cloudSync) {
-        window.cloudSync.saveCloudState({ appState: appState });
-      }
+      saveStateToCloud();
     }
 
     // Render Function
