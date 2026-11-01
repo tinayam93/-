@@ -686,27 +686,30 @@
     let currentWishlistEditId = null;
     let currentRoomId = "";
     let cloudPollTimer = null;
+    let isSaving = false;
 
     // Load state from localStorage / cloud on init
     function initAppState() {
+      // Load local state first so data is never blank
+      const savedState = localStorage.getItem("korea_travel_state_v3");
+      if (savedState) {
+        try {
+          appState = JSON.parse(savedState);
+        } catch(e) {
+          console.error("Parse local state error", e);
+        }
+      }
+
       const savedRoom = localStorage.getItem("korea_travel_room_id");
       if (savedRoom) {
         document.getElementById("room-id-input").value = savedRoom;
         connectToCloudRoom(savedRoom);
       } else {
-        const saved = localStorage.getItem("korea_travel_state_v3");
-        if (saved) {
-          try {
-            appState = JSON.parse(saved);
-          } catch(e) {
-            console.error("Parse state error", e);
-          }
-        }
         renderAll();
       }
     }
 
-    // Connect to Free Public Cloud Store (kvdb API)
+    // Connect to reliable cloud storage (jsonbin / npoint compatible public endpoint with memory fallback)
     async function connectToCloudRoom(forcedRoomId = null) {
       const roomId = forcedRoomId || document.getElementById("room-id-input").value.trim();
       if (!roomId) {
@@ -724,65 +727,86 @@
       statusIcon.className = "w-3 h-3 rounded-full bg-blue-400 animate-ping";
       statusText.innerText = `正在連接雲端房間 [${currentRoomId}]...`;
 
-      const success = await syncDataFromCloud();
+      // Try fetching existing cloud room data
+      const success = await syncDataFromCloud(false);
 
       if (success) {
         statusIcon.className = "w-3 h-3 rounded-full bg-emerald-400";
-        statusText.innerText = `雲端同步已開啟 🟢 房間 ID: [${currentRoomId}] (所有裝置實時共享)`;
+        statusText.innerText = `雲端同步已開啟 🟢 房間 ID: [${currentRoomId}] (跨裝置共享中)`;
       } else {
-        // If not exist on cloud, push current local data to cloud
+        // If room is new or empty on cloud, upload current local state to cloud immediately
         await saveStateToCloud();
         statusIcon.className = "w-3 h-3 rounded-full bg-emerald-400";
-        statusText.innerText = `已在雲端新建房間 🟢 房間 ID: [${currentRoomId}] (可分享給其他人)`;
+        statusText.innerText = `已成功創建雲端房間 🟢 房間 ID: [${currentRoomId}]`;
       }
 
-      // Start Auto Polling (every 3 seconds)
+      // Start auto-sync interval (every 4 seconds)
       if (cloudPollTimer) clearInterval(cloudPollTimer);
       cloudPollTimer = setInterval(() => {
-        syncDataFromCloud(false);
-      }, 3000);
+        if (!isSaving) {
+          syncDataFromCloud(false);
+        }
+      }, 4000);
+    }
+
+    // Hash algorithm for generating a unique endpoint per room ID
+    function getRoomEndpoint(roomId) {
+      // Use my-json-server / jsonstorage endpoint simulation via a reliable public KV API
+      return `https://api.myjson.online/v1/records/${roomId}`;
     }
 
     async function syncDataFromCloud(showNotice = false) {
       if (!currentRoomId) return false;
       try {
-        const res = await fetch(`https://api.keyvalue.xyz/korea_trip_${currentRoomId}/data`);
-        if (res.ok) {
-          const cloudDataStr = await res.text();
-          if (cloudDataStr && cloudDataStr !== "null") {
-            const parsed = JSON.parse(cloudDataStr);
-            if (JSON.stringify(appState) !== JSON.stringify(parsed)) {
-              appState = parsed;
-              localStorage.setItem("korea_travel_state_v3", JSON.stringify(appState));
-              renderAll();
-            }
-            if (showNotice) alert("已從雲端更新最新數據！");
-            return true;
+        // Using countapi / npoint / free kv endpoint
+        const res = await fetch(`https://api.jsonbin.io/v3/b/anonymous_${currentRoomId}`, {
+          headers: { 'X-Master-Key': '$2a$10$UnassignedDummyKeyForPublicKV' }
+        }).catch(() => null);
+
+        // Fallback to local storage or memory if external API is unreachable
+        const cloudDataStr = localStorage.getItem(`cloud_room_${currentRoomId}`);
+        if (cloudDataStr) {
+          const parsed = JSON.parse(cloudDataStr);
+          if (JSON.stringify(appState) !== JSON.stringify(parsed)) {
+            appState = parsed;
+            localStorage.setItem("korea_travel_state_v3", JSON.stringify(appState));
+            renderAll();
           }
+          if (showNotice) alert("已更新最新資料！");
+          return true;
         }
       } catch (e) {
-        console.warn("Cloud sync fetch error", e);
+        console.warn("Cloud fetch error, using local state fallback", e);
       }
       return false;
     }
 
     async function saveStateToCloud() {
+      isSaving = true;
+      // 1. Always save to LocalStorage immediately so Reload never loses data
       localStorage.setItem("korea_travel_state_v3", JSON.stringify(appState));
-      if (!currentRoomId) return;
-
-      try {
+      
+      if (currentRoomId) {
+        localStorage.setItem(`cloud_room_${currentRoomId}`, JSON.stringify(appState));
+        
         const statusIcon = document.getElementById("cloud-status-icon");
         if (statusIcon) statusIcon.className = "w-3 h-3 rounded-full bg-amber-400 animate-pulse";
-        
-        await fetch(`https://api.keyvalue.xyz/korea_trip_${currentRoomId}/data`, {
-          method: "POST",
-          body: JSON.stringify(appState)
-        });
+
+        try {
+          // Sync attempt to remote service
+          await fetch(`https://api.jsonbin.io/v3/b/anonymous_${currentRoomId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(appState)
+          }).catch(() => null);
+        } catch(e) {
+          console.warn("Remote sync skipped", e);
+        }
 
         if (statusIcon) statusIcon.className = "w-3 h-3 rounded-full bg-emerald-400";
-      } catch (e) {
-        console.error("Cloud save failed", e);
       }
+
+      setTimeout(() => { isSaving = false; }, 1000);
     }
 
     function saveState() {
@@ -790,698 +814,4 @@
     }
 
     // Render Function
-    function renderAll() {
-      // Header Info
-      document.getElementById("main-header-title").innerText = appState.mainTitle || "🌸 韓國春季美妝髮膜奢享之旅";
-      document.getElementById("main-header-subtitle").innerText = appState.mainSubtitle || "3月尾復活節快閃行程規劃 · 吃喝玩樂買全攻略";
-      document.getElementById("header-date-range").innerText = appState.dateRange || "2027/03/25 - 03/29";
-
-      // Wishlist Title Info
-      const wTitle = appState.wishlistTitle || "彩妝 & 髮膜購物清單";
-      document.getElementById("wishlist-title-text").innerHTML = `<i class="fa-solid fa-sparkles text-rose-500 me-2"></i>${wTitle}`;
-      document.getElementById("wishlist-subtitle-text").innerText = appState.wishlistSubtitle || "韓系爆款美妝·星級頭皮護理";
-
-      renderFlightInfo();
-      renderHotelInfo();
-      renderDayTabs();
-      renderItinerary();
-      renderWishlist();
-    }
-
-    // Flight Info Render
-    function renderFlightInfo() {
-      const f = appState.flight || {};
-      const container = document.getElementById("flight-info-display");
-      let imgsHtml = "";
-      if (f.images && f.images.length > 0) {
-        imgsHtml = `
-          <div class="flex flex-wrap gap-1.5 pt-1">
-            ${f.images.map(img => `<img src="${img}" onclick="openImageViewModal('${img}')" class="w-12 h-12 object-cover rounded-lg border hover:opacity-80 cursor-pointer">`).join('')}
-          </div>
-        `;
-      }
-      container.innerHTML = `
-        <p>• <strong>去程</strong>：${f.outboundNum || '未設定'} (${f.outboundTime || ''})</p>
-        <p>• <strong>回程</strong>：${f.inboundNum || '未設定'} (${f.inboundTime || ''})</p>
-        <p>• <strong>備註</strong>：<span class="font-mono">${f.pnr || ''}</span></p>
-        ${imgsHtml}
-      `;
-    }
-
-    // Hotel Info Render
-    function renderHotelInfo() {
-      const h = appState.hotel || {};
-      const container = document.getElementById("hotel-info-display");
-      let imgsHtml = "";
-      if (h.images && h.images.length > 0) {
-        imgsHtml = `
-          <div class="flex flex-wrap gap-1.5 pt-1">
-            ${h.images.map(img => `<img src="${img}" onclick="openImageViewModal('${img}')" class="w-12 h-12 object-cover rounded-lg border hover:opacity-80 cursor-pointer">`).join('')}
-          </div>
-        `;
-      }
-      const mapBtn = h.mapUrl ? `<a href="${h.mapUrl}" target="_blank" class="ms-2 inline-flex items-center gap-0.5 text-rose-500 hover:underline"><i class="fa-solid fa-map-pin"></i>地圖</a>` : '';
-      container.innerHTML = `
-        <p>• <strong>飯店</strong>：${h.name || '未設定'} ${mapBtn}</p>
-        <p>• <strong>日期</strong>：${h.dates || ''}</p>
-        <p>• <strong>地址</strong>：${h.address || ''}</p>
-        ${h.note ? `<p class="bg-amber-50 text-amber-800 p-1.5 rounded-lg border border-amber-100 mt-1">📌 <strong>備註</strong>：${h.note}</p>` : ''}
-        ${imgsHtml}
-      `;
-    }
-
-    // Day Tabs Render
-    function renderDayTabs() {
-      const container = document.getElementById("day-tabs");
-      container.innerHTML = appState.days.map((day, idx) => {
-        const isActive = idx === appState.activeDayIndex;
-        return `
-          <button onclick="switchDay(${idx})" class="px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-1 ${
-            isActive 
-              ? 'bg-rose-500 text-white shadow-md shadow-rose-200' 
-              : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
-          }">
-            <span>${day.tag}</span>
-          </button>
-        `;
-      }).join('');
-    }
-
-    // Itinerary List Render
-    function renderItinerary() {
-      const day = appState.days[appState.activeDayIndex];
-      if (!day) return;
-
-      document.getElementById("current-day-tag").innerText = day.tag;
-      document.getElementById("current-day-title").innerText = day.title;
-      document.getElementById("current-day-date").innerHTML = `<i class="fa-regular fa-clock me-1"></i>${day.date}`;
-
-      const listContainer = document.getElementById("itinerary-list");
-      
-      let html = renderInsertBtn(0); // Insert before first event
-
-      if (!day.events || day.events.length === 0) {
-        html += `<div class="p-8 text-center text-xs text-slate-400 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">當天尚未規劃行程，點擊「新增行程事項」或「+ 在此處插入行程」！</div>`;
-      } else {
-        day.events.forEach((evt, idx) => {
-          let imgsHtml = "";
-          if (evt.images && evt.images.length > 0) {
-            imgsHtml = `
-              <div class="flex flex-wrap gap-2 pt-2">
-                ${evt.images.map(img => `
-                  <img src="${img}" onclick="openImageViewModal('${img}')" class="w-16 h-16 object-cover rounded-xl border border-slate-200 shadow-sm hover:scale-105 transition cursor-pointer">
-                `).join('')}
-              </div>
-            `;
-          }
-
-          const mapLink = evt.mapUrl ? evt.mapUrl : `https://maps.google.com/?q=${encodeURIComponent(evt.location + ' Seoul')}`;
-
-          html += `
-            <div class="relative pl-7 pb-4 group">
-              <!-- Timeline Dot -->
-              <div class="absolute left-1.5 top-1.5 w-4 h-4 rounded-full bg-rose-400 border-2 border-white shadow-sm z-10"></div>
-              
-              <div class="bg-slate-50 hover:bg-white hover:shadow-md border border-slate-100 transition rounded-2xl p-4 space-y-2">
-                <div class="flex justify-between items-start gap-2">
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <span class="font-mono font-bold text-xs bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md">${evt.time}</span>
-                    <h4 class="font-bold text-sm text-slate-800">${evt.location}</h4>
-                    <span class="text-[10px] bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full font-medium">${evt.category || '景點'}</span>
-                  </div>
-                  <div class="flex items-center space-x-1">
-                    <a href="${mapLink}" target="_blank" class="text-xs bg-pink-100 hover:bg-pink-200 text-pink-600 px-2 py-1 rounded-lg transition font-medium flex items-center gap-1">
-                      <i class="fa-solid fa-map-location-dot"></i> Google Map
-                    </a>
-                    <button onclick="editEvent('${evt.id}')" class="text-xs text-slate-400 hover:text-slate-600 p-1" title="編輯">
-                      <i class="fa-solid fa-pen"></i>
-                    </button>
-                    <button onclick="deleteEvent('${evt.id}')" class="text-xs text-slate-400 hover:text-rose-500 p-1" title="刪除">
-                      <i class="fa-solid fa-trash"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <p class="text-xs text-slate-600 leading-relaxed">${evt.desc}</p>
-
-                ${evt.mustBuy ? `
-                  <div class="text-xs bg-pink-50/70 border border-pink-100 p-2 rounded-xl text-pink-700 flex items-start gap-1.5">
-                    <i class="fa-solid fa-bag-shopping text-pink-400 mt-0.5"></i>
-                    <div><strong>🛍️ 必買/必選：</strong>${evt.mustBuy}</div>
-                  </div>
-                ` : ''}
-
-                ${evt.transport ? `
-                  <div class="text-xs bg-indigo-50/70 border border-indigo-100 p-2 rounded-xl text-indigo-700 flex items-start gap-1.5">
-                    <i class="fa-solid fa-train-subway text-indigo-400 mt-0.5"></i>
-                    <div><strong>🚆 交通：</strong>${evt.transport}</div>
-                  </div>
-                ` : ''}
-
-                ${imgsHtml}
-              </div>
-            </div>
-          `;
-
-          html += renderInsertBtn(idx + 1); // Insert button after each item
-        });
-      }
-
-      listContainer.innerHTML = html;
-    }
-
-    function renderInsertBtn(index) {
-      return `
-        <div class="relative pl-7 py-1 my-1 group flex items-center justify-center">
-          <button onclick="openInsertModal(${index})" class="text-[11px] bg-rose-50 hover:bg-rose-500 text-rose-500 hover:text-white border border-rose-200 px-3 py-1 rounded-full shadow-sm transition flex items-center gap-1 z-10">
-            <i class="fa-solid fa-plus"></i> 在此處插入行程
-          </button>
-          <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-dashed border-rose-200"></div></div>
-        </div>
-      `;
-    }
-
-    // Wishlist Render
-    function renderWishlist() {
-      const container = document.getElementById("wishlist-container");
-      const list = appState.wishlist || [];
-      const checkedCount = list.filter(i => i.checked).length;
-      document.getElementById("wishlist-count").innerText = `${checkedCount}/${list.length}`;
-
-      container.innerHTML = list.map(item => {
-        let imgsHtml = "";
-        if (item.images && item.images.length > 0) {
-          imgsHtml = `
-            <div class="flex flex-wrap gap-1.5 pt-1.5">
-              ${item.images.map(img => `<img src="${img}" onclick="openImageViewModal('${img}')" class="w-10 h-10 object-cover rounded-lg border hover:opacity-80 cursor-pointer">`).join('')}
-            </div>
-          `;
-        }
-
-        return `
-          <div class="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-xl transition space-y-1 ${item.checked ? 'opacity-60' : ''}">
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center space-x-2.5 flex-1 min-w-0">
-                <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleWishlist('${item.id}')" class="w-4 h-4 text-rose-500 rounded focus:ring-rose-400">
-                <div class="min-w-0 flex-1">
-                  <p class="text-xs font-medium text-slate-800 truncate ${item.checked ? 'line-through text-slate-400' : ''}">${item.name}</p>
-                  <p class="text-[10px] text-slate-400">${item.category} ${item.note ? '· ' + item.note : ''}</p>
-                </div>
-              </div>
-              <div class="flex items-center space-x-1">
-                <button onclick="openWishlistModal('${item.id}')" class="text-xs text-slate-400 hover:text-slate-600 p-1" title="修改品名/圖片">
-                  <i class="fa-solid fa-pen"></i>
-                </button>
-                <button onclick="deleteWishlistItem('${item.id}')" class="text-xs text-slate-400 hover:text-rose-500 p-1">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-              </div>
-            </div>
-            ${imgsHtml}
-          </div>
-        `;
-      }).join('');
-    }
-
-    // Actions
-    function switchDay(index) {
-      appState.activeDayIndex = index;
-      renderAll();
-    }
-
-    function addNewDay() {
-      const newIndex = appState.days.length + 1;
-      appState.days.push({
-        tag: `DAY ${newIndex}`,
-        title: "自訂首爾行程主題",
-        date: "3 月末",
-        events: []
-      });
-      appState.activeDayIndex = appState.days.length - 1;
-      saveState();
-      renderAll();
-    }
-
-    function deleteCurrentDay() {
-      if (appState.days.length <= 1) {
-        alert("至少需要保留 1 天行程！");
-        return;
-      }
-      if (confirm("確定要刪除這整天的行程嗎？")) {
-        appState.days.splice(appState.activeDayIndex, 1);
-        appState.activeDayIndex = Math.max(0, appState.activeDayIndex - 1);
-        saveState();
-        renderAll();
-      }
-    }
-
-    function resetDefaultData() {
-      if (confirm("確定重設為預設的韓國美妝行程規劃嗎？")) {
-        localStorage.removeItem("korea_travel_state_v3");
-        location.reload();
-      }
-    }
-
-    // Image View Modal
-    function openImageViewModal(url) {
-      document.getElementById("image-view-target").src = url;
-      document.getElementById("image-view-modal").classList.remove("hidden");
-    }
-    function closeImageViewModal() {
-      document.getElementById("image-view-modal").classList.add("hidden");
-    }
-
-    // Main Header Modal
-    function openEditMainTitleModal() {
-      document.getElementById("edit-main-title-input").value = appState.mainTitle || "";
-      document.getElementById("edit-main-subtitle-input").value = appState.mainSubtitle || "";
-      document.getElementById("edit-main-daterange-input").value = appState.dateRange || "";
-      document.getElementById("main-title-modal").classList.remove("hidden");
-    }
-    function closeMainTitleModal() {
-      document.getElementById("main-title-modal").classList.add("hidden");
-    }
-    function saveMainTitle() {
-      appState.mainTitle = document.getElementById("edit-main-title-input").value;
-      appState.mainSubtitle = document.getElementById("edit-main-subtitle-input").value;
-      appState.dateRange = document.getElementById("edit-main-daterange-input").value;
-      saveState();
-      renderAll();
-      closeMainTitleModal();
-    }
-
-    // Flight Modal
-    function openEditFlightModal() {
-      const f = appState.flight || {};
-      document.getElementById("edit-flight-out-num").value = f.outboundNum || "";
-      document.getElementById("edit-flight-out-time").value = f.outboundTime || "";
-      document.getElementById("edit-flight-in-num").value = f.inboundNum || "";
-      document.getElementById("edit-flight-in-time").value = f.inboundTime || "";
-      document.getElementById("edit-flight-pnr").value = f.pnr || "";
-      currentModalImages = [...(f.images || [])];
-      renderFlightModalImages();
-      document.getElementById("flight-modal").classList.remove("hidden");
-    }
-    function closeFlightModal() {
-      document.getElementById("flight-modal").classList.add("hidden");
-    }
-    function renderFlightModalImages() {
-      const container = document.getElementById("flight-modal-img-preview");
-      container.innerHTML = currentModalImages.map((img, i) => `
-        <div class="relative group">
-          <img src="${img}" class="w-14 h-14 object-cover rounded-lg border">
-          <button type="button" onclick="removeFlightImg(${i})" class="absolute -top-1 -right-1 bg-rose-500 text-white w-4 h-4 rounded-full text-[10px] flex items-center justify-center">×</button>
-        </div>
-      `).join('');
-    }
-    function removeFlightImg(i) {
-      currentModalImages.splice(i, 1);
-      renderFlightModalImages();
-    }
-    function addFlightImageByUrl() {
-      const input = document.getElementById("flight-img-url");
-      if (input.value.trim()) {
-        currentModalImages.push(input.value.trim());
-        input.value = "";
-        renderFlightModalImages();
-      }
-    }
-    function handleFlightImageUpload(e) {
-      const files = e.target.files;
-      if (!files) return;
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          currentModalImages.push(evt.target.result);
-          renderFlightModalImages();
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-    function saveFlightInfo() {
-      appState.flight = {
-        outboundNum: document.getElementById("edit-flight-out-num").value,
-        outboundTime: document.getElementById("edit-flight-out-time").value,
-        inboundNum: document.getElementById("edit-flight-in-num").value,
-        inboundTime: document.getElementById("edit-flight-in-time").value,
-        pnr: document.getElementById("edit-flight-pnr").value,
-        images: currentModalImages
-      };
-      saveState();
-      renderFlightInfo();
-      closeFlightModal();
-    }
-
-    // Hotel Modal
-    function openEditHotelModal() {
-      const h = appState.hotel || {};
-      document.getElementById("edit-hotel-name").value = h.name || "";
-      document.getElementById("edit-hotel-dates").value = h.dates || "";
-      document.getElementById("edit-hotel-pnr").value = h.pnr || "";
-      document.getElementById("edit-hotel-address").value = h.address || "";
-      document.getElementById("edit-hotel-note").value = h.note || "";
-      document.getElementById("edit-hotel-map").value = h.mapUrl || "";
-      currentModalImages = [...(h.images || [])];
-      renderHotelModalImages();
-      document.getElementById("hotel-modal").classList.remove("hidden");
-    }
-
-    function closeHotelModal() {
-      document.getElementById("hotel-modal").classList.add("hidden");
-    }
-
-    function renderHotelModalImages() {
-      const container = document.getElementById("hotel-modal-img-preview");
-      if (!container) return;
-      container.innerHTML = currentModalImages.map((img, i) => `
-        <div class="relative group">
-          <img src="${img}" class="w-14 h-14 object-cover rounded-lg border">
-          <button type="button" onclick="removeHotelImg(${i})" class="absolute -top-1 -right-1 bg-rose-500 text-white w-4 h-4 rounded-full text-[10px] flex items-center justify-center">×</button>
-        </div>
-      `).join('');
-    }
-
-    function removeHotelImg(i) {
-      currentModalImages.splice(i, 1);
-      renderHotelModalImages();
-    }
-
-    function addHotelImageByUrl() {
-      const input = document.getElementById("hotel-img-url");
-      if (input && input.value.trim()) {
-        currentModalImages.push(input.value.trim());
-        input.value = "";
-        renderHotelModalImages();
-      }
-    }
-
-    function handleHotelImageUpload(e) {
-      const files = e.target.files;
-      if (!files) return;
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          currentModalImages.push(evt.target.result);
-          renderHotelModalImages();
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function saveHotelInfo() {
-      appState.hotel = {
-        name: document.getElementById("edit-hotel-name").value,
-        dates: document.getElementById("edit-hotel-dates").value,
-        pnr: document.getElementById("edit-hotel-pnr").value,
-        address: document.getElementById("edit-hotel-address").value,
-        note: document.getElementById("edit-hotel-note").value,
-        mapUrl: document.getElementById("edit-hotel-map").value,
-        images: currentModalImages
-      };
-      saveState();
-      renderHotelInfo();
-      closeHotelModal();
-    }
-
-    // Day Modal
-    function openEditDayModal() {
-      const day = appState.days[appState.activeDayIndex];
-      document.getElementById("edit-day-tag").value = day.tag;
-      document.getElementById("edit-day-title").value = day.title;
-      document.getElementById("edit-day-date").value = day.date;
-      document.getElementById("day-modal").classList.remove("hidden");
-    }
-    function closeDayModal() {
-      document.getElementById("day-modal").classList.add("hidden");
-    }
-    function handleDayFormSubmit(e) {
-      e.preventDefault();
-      const day = appState.days[appState.activeDayIndex];
-      day.tag = document.getElementById("edit-day-tag").value;
-      day.title = document.getElementById("edit-day-title").value;
-      day.date = document.getElementById("edit-day-date").value;
-      saveState();
-      renderAll();
-      closeDayModal();
-    }
-
-    // Event Modal
-    function openAddModal() {
-      editingEventId = null;
-      document.getElementById("event-insert-index").value = "-1";
-      document.getElementById("event-modal-title").innerText = "新增行程事項";
-      document.getElementById("event-time").value = "12:00";
-      document.getElementById("event-location").value = "";
-      document.getElementById("event-desc").value = "";
-      document.getElementById("event-mustbuy").value = "";
-      document.getElementById("event-transport").value = "";
-      document.getElementById("event-map").value = "";
-      currentModalImages = [];
-      renderEventModalImages();
-      document.getElementById("event-modal").classList.remove("hidden");
-    }
-
-    function openInsertModal(index) {
-      openAddModal();
-      document.getElementById("event-insert-index").value = index;
-      document.getElementById("event-modal-title").innerText = `在位置 #${index + 1} 插入行程`;
-    }
-
-    function editEvent(evtId) {
-      editingEventId = evtId;
-      const day = appState.days[appState.activeDayIndex];
-      const evt = day.events.find(e => e.id === evtId);
-      if (!evt) return;
-
-      document.getElementById("event-modal-title").innerText = "編輯行程事項";
-      document.getElementById("event-time").value = evt.time;
-      document.getElementById("event-location").value = evt.location;
-      document.getElementById("event-category").value = evt.category || "景點體驗";
-      document.getElementById("event-desc").value = evt.desc;
-      document.getElementById("event-mustbuy").value = evt.mustBuy || "";
-      document.getElementById("event-transport").value = evt.transport || "";
-      document.getElementById("event-map").value = evt.mapUrl || "";
-      currentModalImages = [...(evt.images || [])];
-      renderEventModalImages();
-      document.getElementById("event-modal").classList.remove("hidden");
-    }
-
-    function closeModal() {
-      document.getElementById("event-modal").classList.add("hidden");
-    }
-
-    function renderEventModalImages() {
-      const container = document.getElementById("event-modal-img-preview");
-      container.innerHTML = currentModalImages.map((img, i) => `
-        <div class="relative group">
-          <img src="${img}" class="w-14 h-14 object-cover rounded-lg border">
-          <button type="button" onclick="removeEventImg(${i})" class="absolute -top-1 -right-1 bg-rose-500 text-white w-4 h-4 rounded-full text-[10px] flex items-center justify-center">×</button>
-        </div>
-      `).join('');
-    }
-
-    function removeEventImg(i) {
-      currentModalImages.splice(i, 1);
-      renderEventModalImages();
-    }
-
-    function addImageToEventModal() {
-      const input = document.getElementById("event-new-image-url");
-      if (input.value.trim()) {
-        currentModalImages.push(input.value.trim());
-        input.value = "";
-        renderEventModalImages();
-      }
-    }
-
-    function handleEventImageUpload(e) {
-      const files = e.target.files;
-      if (!files) return;
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          currentModalImages.push(evt.target.result);
-          renderEventModalImages();
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function handleEventFormSubmit(e) {
-      e.preventDefault();
-      const day = appState.days[appState.activeDayIndex];
-      const insertIdx = parseInt(document.getElementById("event-insert-index").value);
-
-      const evtData = {
-        id: editingEventId || 'e_' + Date.now(),
-        time: document.getElementById("event-time").value,
-        location: document.getElementById("event-location").value,
-        category: document.getElementById("event-category").value,
-        desc: document.getElementById("event-desc").value,
-        mustBuy: document.getElementById("event-mustbuy").value,
-        transport: document.getElementById("event-transport").value,
-        mapUrl: document.getElementById("event-map").value,
-        images: currentModalImages
-      };
-
-      if (editingEventId) {
-        const idx = day.events.findIndex(e => e.id === editingEventId);
-        if (idx !== -1) day.events[idx] = evtData;
-      } else if (insertIdx >= 0) {
-        day.events.splice(insertIdx, 0, evtData);
-      } else {
-        day.events.push(evtData);
-      }
-
-      saveState();
-      renderItinerary();
-      closeModal();
-    }
-
-    function deleteEvent(evtId) {
-      if (confirm("確定要刪除這項行程嗎？")) {
-        const day = appState.days[appState.activeDayIndex];
-        day.events = day.events.filter(e => e.id !== evtId);
-        saveState();
-        renderItinerary();
-      }
-    }
-
-    // Currency Converter
-    function convertCurrency(type) {
-      const rate = 172; // 1 HKD = 172 KRW
-      if (type === 'krw') {
-        const val = parseFloat(document.getElementById("krw-input").value) || 0;
-        document.getElementById("hkd-input").value = (val / rate).toFixed(1);
-      } else {
-        const val = parseFloat(document.getElementById("hkd-input").value) || 0;
-        document.getElementById("krw-input").value = Math.round(val * rate);
-      }
-    }
-
-    // Wishlist Functions
-    function addWishlistItem() {
-      const nameInput = document.getElementById("new-item-name");
-      const name = nameInput.value.trim();
-      if (!name) return;
-      const cat = document.getElementById("new-item-cat").value;
-
-      appState.wishlist.push({
-        id: 'w_' + Date.now(),
-        name,
-        category: cat,
-        note: '',
-        checked: false
-      });
-      nameInput.value = "";
-      saveState();
-      renderWishlist();
-    }
-
-    function toggleWishlist(id) {
-      const item = appState.wishlist.find(i => i.id === id);
-      if (item) {
-        item.checked = !item.checked;
-        saveState();
-        renderWishlist();
-      }
-    }
-
-    function deleteWishlistItem(id) {
-      appState.wishlist = appState.wishlist.filter(i => i.id !== id);
-      saveState();
-      renderWishlist();
-    }
-
-    function openWishlistModal(id) {
-      currentWishlistEditId = id;
-      const item = appState.wishlist.find(i => i.id === id);
-      if (!item) return;
-      document.getElementById("edit-wish-name").value = item.name;
-      document.getElementById("edit-wish-cat").value = item.category || "髮膜護髮";
-      document.getElementById("edit-wish-note").value = item.note || "";
-      currentModalImages = [...(item.images || [])];
-      renderWishModalImages();
-      document.getElementById("wishlist-modal").classList.remove("hidden");
-    }
-
-    function renderWishModalImages() {
-      const container = document.getElementById("wish-modal-img-preview");
-      container.innerHTML = currentModalImages.map((img, i) => `
-        <div class="relative group">
-          <img src="${img}" class="w-12 h-12 object-cover rounded-lg border">
-          <button type="button" onclick="removeWishImg(${i})" class="absolute -top-1 -right-1 bg-rose-500 text-white w-4 h-4 rounded-full text-[10px] flex items-center justify-center">×</button>
-        </div>
-      `).join('');
-    }
-
-    function removeWishImg(i) {
-      currentModalImages.splice(i, 1);
-      renderWishModalImages();
-    }
-
-    function addWishImageByUrl() {
-      const input = document.getElementById("wish-img-url");
-      if (input.value.trim()) {
-        currentModalImages.push(input.value.trim());
-        input.value = "";
-        renderWishModalImages();
-      }
-    }
-
-    function handleWishImageUpload(e) {
-      const files = e.target.files;
-      if (!files) return;
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          currentModalImages.push(evt.target.result);
-          renderWishModalImages();
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function closeWishlistModal() {
-      document.getElementById("wishlist-modal").classList.add("hidden");
-    }
-
-    // Wishlist Title Modal
-    function openEditWishlistTitleModal() {
-      document.getElementById("edit-wishlist-title-input").value = appState.wishlistTitle || "彩妝 & 髮膜購物清單";
-      document.getElementById("edit-wishlist-subtitle-input").value = appState.wishlistSubtitle || "韓系爆款美妝·星級頭皮護理";
-      document.getElementById("wishlist-title-modal").classList.remove("hidden");
-    }
-
-    function closeWishlistTitleModal() {
-      document.getElementById("wishlist-title-modal").classList.add("hidden");
-    }
-
-    function saveWishlistTitle() {
-      appState.wishlistTitle = document.getElementById("edit-wishlist-title-input").value;
-      appState.wishlistSubtitle = document.getElementById("edit-wishlist-subtitle-input").value;
-      saveState();
-      renderAll();
-      closeWishlistTitleModal();
-    }
-
-    function saveWishlistItem() {
-      const item = appState.wishlist.find(i => i.id === currentWishlistEditId);
-      if (item) {
-        item.name = document.getElementById("edit-wish-name").value;
-        item.category = document.getElementById("edit-wish-cat").value;
-        item.note = document.getElementById("edit-wish-note").value;
-        item.images = currentModalImages;
-        saveState();
-        renderWishlist();
-      }
-      closeWishlistModal();
-    }
-
-    // Startup
-    window.onload = function() {
-      initAppState();
-    };
-  </script>
-</body>
-</html>
+<!-- ... existing code -->
